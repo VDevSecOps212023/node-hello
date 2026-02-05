@@ -54,13 +54,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DD1DCF910FE947259126789B89E943E6 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_AD0EAEE396D54B21B098B3DAD5EDCC2F }}
 
-      - name: Login to ACR
-        run: |
-          az acr login --name ${{ secrets.ACR_NAME }}
- 
+
       - name: Build and Push Docker image
         run: |
           ACR_LOGIN_SERVER=$(az acr show -n ${{ secrets.ACR_NAME }} --query loginServer -o tsv)
+          TOKEN=$(az acr login -n "${{ secrets.ACR_NAME }}" --rxpose-token --query loginServer -o tsv)
           IMAGE_SHA="${ACR_LOGIN_SERVER}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}"
           IMAGE_LATEST="${ACR_LOGIN_SERVER}/${{ secrets.IMAGE_NAME }}:latest"
  
@@ -77,3 +75,4 @@ jobs:
           app-name: 'nodeappers'
           slot-name: 'Production'
           package: .
+
