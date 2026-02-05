@@ -54,14 +54,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DD1DCF910FE947259126789B89E943E6 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_AD0EAEE396D54B21B098B3DAD5EDCC2F }}
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'nodeappers'
-          slot-name: 'Production'
-          package: .
-
       - name: Login to ACR
         run: |
           az acr login --name ${{ secrets.ACR_NAME }}
@@ -76,5 +68,12 @@ jobs:
           docker push "$IMAGE_SHA"
           docker push "$IMAGE_LATEST"
  
-          echo "IMAGE_TO_DEPLOY=$IMAGE_SHA" >> $GITHUB_ENV
+          echo "IMAGE_TO_DEPLOY=$IMAGE_SHA" >> $GITHUB_ENV          
 
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'nodeappers'
+          slot-name: 'Production'
+          package: .
