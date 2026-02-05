@@ -62,4 +62,19 @@ jobs:
           slot-name: 'Production'
           package: .
 
-          
+      - name: Login to ACR
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+ 
+      - name: Build and Push Docker image
+        run: |
+          ACR_LOGIN_SERVER=$(az acr show -n ${{ secrets.ACR_NAME }} --query loginServer -o tsv)
+          IMAGE_SHA="${ACR_LOGIN_SERVER}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}"
+          IMAGE_LATEST="${ACR_LOGIN_SERVER}/${{ secrets.IMAGE_NAME }}:latest"
+ 
+          docker build -t "$IMAGE_SHA" -t "$IMAGE_LATEST" .
+          docker push "$IMAGE_SHA"
+          docker push "$IMAGE_LATEST"
+ 
+          echo "IMAGE_TO_DEPLOY=$IMAGE_SHA" >> $GITHUB_ENV
+
